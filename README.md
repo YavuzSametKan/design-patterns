@@ -16,6 +16,7 @@
 - [Factory](#Factory)
 - [Abstract Factory](#Abstract-Factory)
 - [Builder](#Builder)
+- [Prototype](#Prototype)
 
 ## Flyweight
 
@@ -1267,4 +1268,142 @@ House{
     doors='Ahşap kapılar',
     windows='Küçük pencereler'
 }
+```
+
+## Prototype
+
+### Amaç?
+
+bir nesnenin mevcut bir örneğini (prototype) kopyalayarak yeni nesneler oluşturulmasını sağlar. Yani, nesnelerin doğrudan bir sınıfı tarafından oluşturulmak yerine, daha önce var olan bir nesnenin bir kopyası alınarak yeni bir nesne oluşturulur. Bu desen, nesne oluşturma maliyetlerinin yüksek olduğu veya nesneler benzer yapıda ve özelliklerde olduğu durumlarda kullanışlıdır.
+
+### Ne Zaman Kullanılır?
+
+Bir grafik düzenleyici uygulaması üzerinde çalıştığınızı düşünün. Uygulama içerisinde şekiller çizilir. Bu şekillerin bazıları karmaşık yapılar olabilir. Eğer her seferinde sıfırdan bir şekil çizmek yerine, mevcut bir şeklin kopyasını almak daha hızlı ve verimli olacaktır.
+
+#### Prototype Arayüzü (Prototype Interface)
+
+Öncelikle kopyalanabilir nesneler için bir arayüz tanımlarız. Bu arayüzde, nesnenin kopyalanabilmesi için bir clone() metodunun tanımlanması gerekir.
+
+```java
+// Prototype arayüzü
+public interface Shape {
+    Shape clone();
+    void draw();
+}
+```
+
+#### Somut Nesneler (Concrete Prototype)
+
+Sonrasında, kopyalanabilecek somut nesneleri tanımlarız. Bu nesneler, şekil nesneleri olabilir (örneğin daire, kare).
+
+```java
+// ConcretePrototype: Daire
+public class Circle implements Shape {
+    private int radius;
+
+    public Circle(int radius) {
+        this.radius = radius;
+    }
+
+    @Override
+    public Shape clone() {
+        return new Circle(this.radius); // Yeni bir daire kopyası oluşturulur
+    }
+
+    @Override
+    public void draw() {
+        System.out.println("Çevresi çiziliyor, yarıçap: " + radius);
+    }
+
+    public void setRadius(int radius) {
+        this.radius = radius;
+    }
+}
+
+// ConcretePrototype: Kare
+public class Square implements Shape {
+    private int sideLength;
+
+    public Square(int sideLength) {
+        this.sideLength = sideLength;
+    }
+
+    @Override
+    public Shape clone() {
+        return new Square(this.sideLength); // Yeni bir kare kopyası oluşturulur
+    }
+
+    @Override
+    public void draw() {
+        System.out.println("Kenar uzunluğu: " + sideLength);
+    }
+
+    public void setSideLength(int sideLength) {
+        this.sideLength = sideLength;
+    }
+}
+```
+
+#### Prototype Manager (Client)
+
+İstemci, kopyalama işlemi için bir Prototype Manager veya Factory sınıfı kullanabilir. Bu sınıf, kopyalama işlemi yapacak olan örnekleri tutar ve istemciye gerektiği zaman kopya sağlar.
+
+```java
+// Prototype Manager sınıfı
+public class ShapeManager {
+    private Shape circlePrototype;
+    private Shape squarePrototype;
+
+    public ShapeManager() {
+        this.circlePrototype = new Circle(5); // Orijinal daire
+        this.squarePrototype = new Square(4); // Orijinal kare
+    }
+
+    public Shape getCirclePrototype() {
+        return circlePrototype.clone(); // Daire kopyası al
+    }
+
+    public Shape getSquarePrototype() {
+        return squarePrototype.clone(); // Kare kopyası al
+    }
+}
+```
+
+#### İstemci Kullanımı
+
+İstemci, ShapeManager üzerinden prototip nesnelerini alarak, bu nesneler üzerinde işlem yapabilir.
+
+```java
+// İstemci Kullanımı
+public class Client {
+    public static void main(String[] args) {
+        ShapeManager shapeManager = new ShapeManager();
+        
+        // Daire kopyası al
+        Shape circle1 = shapeManager.getCirclePrototype();
+        circle1.draw(); // Çevresi çiziliyor, yarıçap: 5
+        
+        // Kare kopyası al
+        Shape square1 = shapeManager.getSquarePrototype();
+        square1.draw(); // Kenar uzunluğu: 4
+        
+        // Kopyalanan nesneleri değiştirebiliriz
+        Shape circle2 = shapeManager.getCirclePrototype();
+        ((Circle)circle2).setRadius(10);
+        circle2.draw(); // Çevresi çiziliyor, yarıçap: 10
+        
+        Shape square2 = shapeManager.getSquarePrototype();
+        ((Square)square2).setSideLength(6);
+        square2.draw(); // Kenar uzunluğu: 6
+    }
+}
+```
+
+#### Çıktı
+
+```
+Çevresi çiziliyor, yarıçap: 5
+Kenar uzunluğu: 4
+Çevresi çiziliyor, yarıçap: 10
+Kenar uzunluğu: 6
 ```
