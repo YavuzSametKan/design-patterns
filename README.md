@@ -14,6 +14,7 @@
 
 - [Singleton](#Singleton)
 - [Factory](#Factory)
+- [Abstract Factory](#Abstract-Factory)
 
 ## Flyweight
 
@@ -890,4 +891,159 @@ public class Main {
 ``` 
 Sedan araba sürülüyor.
 SUV araba sürülüyor.
+```
+
+## Abstract Factory
+
+### Amaç?
+
+Benzer türdeki nesneleri üretebilen bir arayüz (interface) sağlar, ancak istemcinin hangi sınıfın nesnesini oluşturduğuna dair bilgisi yoktur. Bu desen, çeşitli nesne ailesi türlerinin oluşturulmasını sağlar ve her nesne ailesi farklı tiplerde nesneler içerir. İstemci yalnızca bir tür nesne ailesi ile etkileşime girer, böylece her bir nesne ailesinin üyeleri uyumlu ve tutarlı olur.
+
+### Ne Zaman Kullanılır?
+
+Bir kullanıcı arayüzü (UI) için farklı platformlarda (örneğin, Windows, Mac) benzer bileşenler (buton, menü, pencere) üretmek istiyoruz. Her platformun kendi bileşenleri farklı olabilir, ancak her platforma ait bileşenler uyumlu olmalıdır. İstemci yalnızca platforma özgü bir bileşen ailesi ister, fabrika sınıfı ise doğru platforma uygun bileşenleri yaratacaktır.
+
+#### Bileşen Sınıfları (Product Interfaces)
+
+Öncelikle farklı platformlar için ortak arayüzleri tanımlayalım.
+
+```java
+// Buton arayüzü (Button)
+public interface Button {
+    void render();
+}
+
+// Pencere arayüzü (Window)
+public interface Window {
+    void render();
+}
+```
+
+#### Somut Bileşen Sınıfları (Concrete Products)
+
+Farklı platformlara ait somut bileşen sınıfları.
+
+```java
+// Windows için Buton
+public class WindowsButton implements Button {
+    @Override
+    public void render() {
+        System.out.println("Windows butonu render ediliyor.");
+    }
+}
+
+// Windows için Pencere
+public class WindowsWindow implements Window {
+    @Override
+    public void render() {
+        System.out.println("Windows penceresi render ediliyor.");
+    }
+}
+
+// Mac için Buton
+public class MacButton implements Button {
+    @Override
+    public void render() {
+        System.out.println("Mac butonu render ediliyor.");
+    }
+}
+
+// Mac için Pencere
+public class MacWindow implements Window {
+    @Override
+    public void render() {
+        System.out.println("Mac penceresi render ediliyor.");
+    }
+}
+```
+
+#### Abstract Factory Arayüzü (Abstract Factory Interface)
+
+Bu arayüz, her platform için ürünleri üreten metodları tanımlar.
+
+```java
+// Abstract Factory arayüzü
+public interface GUIFactory {
+    Button createButton();
+    Window createWindow();
+}
+```
+
+#### Somut Factory Sınıfları (Concrete Factories)
+
+Her platform için somut fabrika sınıfları, doğru bileşenleri üretir.
+
+```java
+// Windows için Fabrika
+public class WindowsFactory implements GUIFactory {
+    @Override
+    public Button createButton() {
+        return new WindowsButton();
+    }
+
+    @Override
+    public Window createWindow() {
+        return new WindowsWindow();
+    }
+}
+
+// Mac için Fabrika
+public class MacFactory implements GUIFactory {
+    @Override
+    public Button createButton() {
+        return new MacButton();
+    }
+
+    @Override
+    public Window createWindow() {
+        return new MacWindow();
+    }
+}
+```
+
+#### Client (İstemci) Kullanımı
+
+İstemci kodu, yalnızca ilgili platformu seçer ve doğru bileşen ailesi ile etkileşime girer.
+
+```java
+public class Application {
+    private Button button;
+    private Window window;
+
+    // Factory nesnesini kabul eder
+    public Application(GUIFactory factory) {
+        button = factory.createButton();
+        window = factory.createWindow();
+    }
+
+    public void renderUI() {
+        button.render();
+        window.render();
+    }
+
+    public static void main(String[] args) {
+        // İstemci, platforma bağlı olarak doğru fabrika sınıfını seçer
+        GUIFactory factory = new WindowsFactory(); // ya da new MacFactory()
+        Application app = new Application(factory);
+
+        // UI render edilir
+        app.renderUI();
+    }
+}
+```
+
+#### Çıktı
+
+Eğer WindowsFactory kullanılırsa:
+
+```
+Windows butonu render ediliyor.
+Windows penceresi render ediliyor.
+```
+
+Eğer MacFactory kullanılırsa:
+
+```
+Mac butonu render ediliyor.
+Mac penceresi render ediliyor.
 ```
