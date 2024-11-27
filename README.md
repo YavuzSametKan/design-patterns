@@ -1,6 +1,12 @@
 # Tasarım Desenleri
 
+Tasarım desenleri, yazılım geliştirme süreçlerinde karşılaşılan yaygın problemleri çözmek için önerilen, tekrar kullanılabilir ve sistematik çözümlerdir. Bu desenler, yazılımın yapısını ve tasarımını belirlerken en iyi uygulamaları ve standartları takip etmeyi sağlar.
+
+Tasarım desenleri genellikle 3 ana kategoriye ayrılır. Haydi bu başlıkları beraber inceleyelim.
+
 # Yapısal Tasarım Desenleri
+
+Farklı sınıflar ve nesneler arasındaki ilişkileri düzenler ve bunları daha esnek ve verimli hale getirir. Yapısal desenler, sistemin bileşenleri arasında daha iyi bir yapı kurar.
 
 - [Flyweight](#Flyweight)
 - [Adapter](#Adapter)
@@ -12,11 +18,19 @@
 
 # Yaratımsal Tasarım Desenleri
 
+Nesne oluşturma sürecini yönetir ve nesnelerin yaratılmasında esneklik sağlar. Bu desenler, nesne oluşturma süreçlerini soyutlayarak yazılımın bağımlılıklarını azaltır.
+
 - [Singleton](#Singleton)
 - [Factory](#Factory)
 - [Abstract Factory](#Abstract-Factory)
 - [Builder](#Builder)
 - [Prototype](#Prototype)
+
+# Davranışsal Tasarım Desenleri
+
+Nesneler arasındaki iletişimi ve davranışları düzenler. Bu desenler, nesnelerin etkileşim biçimlerini optimize eder ve daha esnek hale getirir.
+
+- Çok Yakında...
 
 ## Flyweight
 
