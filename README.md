@@ -314,4 +314,87 @@ TV kapatıldı.
 Sistem kapatıldı.
 ```
 
-Proxy
+## Proxy
+
+### Amaç?
+
+Proxy tasarım deseni, başka bir nesnenin temsilcisi olan bir nesne sağlar. Bu, gerçek nesneye erişimi kontrol etmek veya sınırlamak amacıyla kullanılır. Proxy, genellikle performans, güvenlik veya nesnenin karmaşıklığını soyutlamak için kullanılır.
+
+### Ne Zaman Kullanılır?
+
+Bir video platformu düşünün. Kullanıcı videoları izlemek istediğinde, video dosyası henüz yüklenmiş olmayabilir. Video dosyasını sadece gerektiğinde (izleme zamanı) yüklemek için Proxy deseni kullanabiliriz. Burada Proxy, video yüklemesini geciktirir (Lazy Loading).
+
+#### Gerçek Nesne (RealSubject):
+
+Gerçek video dosyasını temsil eder.
+
+```java
+// Gerçek Video (RealSubject)
+class Video {
+    private String videoFile;
+
+    public Video(String videoFile) {
+        this.videoFile = videoFile;
+    }
+
+    public void loadVideo() {
+        System.out.println(videoFile + " videosu yüklendi.");
+    }
+
+    public void play() {
+        System.out.println(videoFile + " oynatılıyor...");
+    }
+}
+```
+
+#### Proxy (Vekil) Sınıfı:
+
+Gerçek video dosyasını yüklemeden önce, proxy sınıfı video dosyasını yalnızca gerektiğinde yükler.
+
+```java
+// Video Proxy (Proxy)
+class VideoProxy {
+    private Video realVideo;
+    private String videoFile;
+
+    public VideoProxy(String videoFile) {
+        this.videoFile = videoFile;
+    }
+
+    public void play() {
+        // Video yüklendiyse doğrudan oynat, yoksa yükle
+        if (realVideo == null) {
+            realVideo = new Video(videoFile);
+            realVideo.loadVideo(); // Lazy loading
+        }
+        realVideo.play();
+    }
+}
+```
+
+#### Kullanım:
+
+Proxy kullanarak video dosyasını sadece gerektiğinde yükleyelim.
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        // Proxy'yi oluştur
+        VideoProxy videoProxy = new VideoProxy("Java Proxy Deseni");
+
+        // Video başlat: video dosyasını ancak izleme zamanı yüklüyoruz
+        videoProxy.play();  // İlk defa oynatırken video yüklenecek
+
+        // Aynı video tekrar oynatılabilir, ancak önceden yüklenmiş olacak
+        videoProxy.play();  // Video hemen oynatılacak, tekrar yüklemeyecek
+    }
+}
+```
+
+#### Çıktı
+
+```
+Java Proxy Deseni videosu yüklendi.
+Java Proxy Deseni oynatılıyor...
+Java Proxy Deseni oynatılıyor...
+```
