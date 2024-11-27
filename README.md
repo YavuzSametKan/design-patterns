@@ -513,3 +513,122 @@ Fiyat: 5.0 TL
 Fiyat: 6.0 TL
 Fiyat: 6.5 TL
 ```
+
+## Bridge
+
+### Amaç?
+
+bir nesnenin soyutlamasını (abstraction) ve onun gerçekleştirilmesini (implementation) birbirinden bağımsız olarak geliştirmeyi amaçlar. Bu desen, nesnenin soyutlaması ile gerçekleştirilmesi arasındaki bağı ortadan kaldırır ve her ikisinin de bağımsız bir şekilde değişmesine olanak tanır. Böylece her iki taraf da birbirinden etkilenmeden geliştirilebilir ve değiştirebilir.
+
+### Ne Zaman Kullanılır?
+
+Bir grafik programı düşünün. Programın farklı aygıtlar üzerinde şekiller çizmesi gerekmektedir (örneğin, bir ekran, yazıcı veya başka bir çıktı aygıtı). Aynı soyutlama (örneğin, bir şekil çizme) işlemi, her aygıt için farklı bir şekilde gerçekleştirilmelidir. Bu durumda Bridge deseni kullanarak soyutlama ve implementasyonu birbirinden ayırabiliriz.
+
+#### Implementor Arayüzü (Aygıtlar):
+
+Çizim yapılacak aygıtların temel fonksiyonları burada tanımlanır.
+
+```java 
+// Implementor Arayüzü (Aygıtlar)
+interface DrawingAPI {
+    void drawCircle(double x, double y, double radius);  // Çizim işlemi
+}
+```
+
+#### Concrete Implementors (Gerçekleştiriciler):
+
+Gerçekleştiriciler, farklı aygıt türlerini (Ekran, Yazıcı vb.) temsil eder ve çizim işlemini gerçekleştirir. 
+
+```java 
+// Ekran Çizim Aygıtı (Concrete Implementor)
+class DrawingAPI1 implements DrawingAPI {
+    @Override
+    public void drawCircle(double x, double y, double radius) {
+        System.out.println("Ekran üzerinde daire çizildi: (" + x + ", " + y + ") yarıçap: " + radius);
+    }
+}
+
+// Yazıcı Çizim Aygıtı (Concrete Implementor)
+class DrawingAPI2 implements DrawingAPI {
+    @Override
+    public void drawCircle(double x, double y, double radius) {
+        System.out.println("Yazıcıda daire çizildi: (" + x + ", " + y + ") yarıçap: " + radius);
+    }
+}
+```
+
+#### Abstraction (Soyutlama):
+
+Soyutlama sınıfı, DrawingAPI ile etkileşimde bulunarak farklı çizim işlemlerini yönetir.
+
+```java 
+// Soyutlama (Abstraction)
+abstract class Shape {
+    protected DrawingAPI drawingAPI;
+
+    protected Shape(DrawingAPI drawingAPI) {
+        this.drawingAPI = drawingAPI;
+    }
+
+    public abstract void draw();  // Şekli çizme
+    public abstract void resizeByPercentage(double pct);  // Şekli büyütme/küçültme
+}
+```
+
+#### Refined Abstraction (İleri Düzey Soyutlama):
+
+Soyutlama sınıfının alt sınıfı, belirli şekil türlerini temsil eder (örneğin, daire).
+
+```java 
+// Daire (Refined Abstraction)
+class Circle extends Shape {
+    private double x, y, radius;
+
+    public Circle(double x, double y, double radius, DrawingAPI drawingAPI) {
+        super(drawingAPI);
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+    }
+
+    @Override
+    public void draw() {
+        drawingAPI.drawCircle(x, y, radius);  // Çizim işlemi için ilgili implementor'u çağırır
+    }
+
+    @Override
+    public void resizeByPercentage(double pct) {
+        radius *= (1 + pct / 100.0);  // Yüzdeye göre büyütme/küçültme
+    }
+}
+```
+
+#### Kullanım:
+
+Şimdi bu köprü desenini kullanarak şekilleri çizelim.
+
+```java 
+public class Main {
+    public static void main(String[] args) {
+        // Ekranda çizim yapmak için API1, Yazıcıda çizim için API2 kullanılıyor
+        Shape shape1 = new Circle(1.0, 2.0, 3.0, new DrawingAPI1());
+        Shape shape2 = new Circle(5.0, 7.0, 8.0, new DrawingAPI2());
+
+        // Çizim işlemi
+        shape1.draw();
+        shape2.draw();
+
+        // Şekli büyütme
+        shape1.resizeByPercentage(10);
+        shape1.draw();
+    }
+}
+```
+
+#### Çıktı
+
+```
+Ekran üzerinde daire çizildi: (1.0, 2.0) yarıçap: 3.0
+Yazıcıda daire çizildi: (5.0, 7.0) yarıçap: 8.0
+Ekran üzerinde daire çizildi: (1.0, 2.0) yarıçap: 3.3
+```
