@@ -1,5 +1,13 @@
 # Yapısal Tasarım Desenleri
 
+- [Flyweight](#Flyweight)
+- [Adapter](#Adapter)
+- [Composite](#Composite)
+- [Facade](#Facade)
+- [Proxy](#Proxy)
+- [Decorator](#Decorator)
+- [Bridge](#Bridge)
+
 ## Flyweight
 
 ### Amaç?
@@ -8,7 +16,97 @@
 
 ### Ne Zaman Kullanılır?
 
-Bir grafik uygulamasında, ekrana yüzlerce ağaç çizmek gerektiğini düşünelim. Her ağaç için ayrı nesne oluşturmak bellek tüketimini artırır. Ancak Flyweight kalıbıyla ağaç türü, rengi gibi ortak özellikler bir kez oluşturulup paylaşılabilir. Yalnızca konum gibi farklılık gösteren özellikler dışarıdan sağlanır.
+Bir grafik uygulaması düşünün, burada birçok şekil (daire, kare, üçgen vb.) çizmek gerekiyor. Bu şekillerin çoğu, örneğin renk veya çizgi kalınlığı gibi bazı ortak özelliklere sahip olabilir. Flyweight deseni kullanarak, her şekil için yalnızca farklı olan özellikleri (örneğin, konum) saklayabiliriz ve ortak özellikleri merkezi bir havuzda tutarak bellek kullanımını optimize edebiliriz.
+
+#### Flyweight Arayüzü:
+
+Flyweight nesnelerinin ortak bir arayüzü olmalıdır. Bu arayüz, nesnelerin kullanılabilir bir şekilde dışarıya sunulmasını sağlar.
+
+```java 
+// Flyweight Arayüzü
+interface Shape {
+    void draw(int x, int y);  // Çizim fonksiyonu, konum verisini alır
+}
+```
+
+#### ConcreteFlyweight (Somut Flyweight):
+
+Somut Flyweight sınıfı, nesnelerin ortak özelliklerini (örn. renk, çizgi kalınlığı gibi) saklar. Bu özellikler, tüm nesneler için ortak olan verilerdir.
+
+```java 
+// ConcreteFlyweight (Somut Flyweight)
+class Circle implements Shape {
+    private String color;  // Ortak özellik, örneğin renk
+
+    public Circle(String color) {
+        this.color = color;
+    }
+
+    @Override
+    public void draw(int x, int y) {
+        System.out.println("Çizilen daire: Konum(" + x + ", " + y + "), Renk: " + color);
+    }
+}
+```
+
+#### FlyweightFactory (Flyweight Fabrikası):
+
+Flyweight nesnelerini yöneten ve gerektiğinde mevcut nesneleri geri döndüren bir fabrikadır. Bu sınıf, nesneleri merkezi bir havuzda tutar ve aynı nesneden birden fazla istendiğinde, yeni bir nesne oluşturmak yerine mevcut nesneyi döndürür.
+
+```java 
+// FlyweightFactory
+import java.util.HashMap;
+import java.util.Map;
+
+class ShapeFactory {
+    private static final Map<String, Shape> shapeMap = new HashMap<>();
+
+    public static Shape getShape(String color) {
+        Shape shape = shapeMap.get(color);
+        
+        if (shape == null) {
+            shape = new Circle(color);  // Yeni nesne oluşturuluyor
+            shapeMap.put(color, shape);  // Kaydediliyor
+            System.out.println(color + " renkli daire oluşturuldu");
+        }
+
+        return shape;  // Var olan nesne döndürülüyor
+    }
+}
+```
+
+#### Client (Kullanım):
+
+İstemci sınıfı, Flyweight nesnelerini kullanır. Bu sınıf, nesneleri kullanırken, sadece değişken olan verileri (örn. konum) gönderir, ortak verileri ise Flyweight nesnesi üzerinden alır.
+
+```java 
+// Client
+public class Main {
+    public static void main(String[] args) {
+        // Renkleri paylaşarak şekillerin çizilmesi
+        Shape redCircle = ShapeFactory.getShape("Kırmızı");
+        redCircle.draw(10, 20);
+
+        Shape blueCircle = ShapeFactory.getShape("Mavi");
+        blueCircle.draw(30, 40);
+
+        // Aynı kırmızı daire tekrar kullanılıyor
+        Shape anotherRedCircle = ShapeFactory.getShape("Kırmızı");
+        anotherRedCircle.draw(50, 60);
+    }
+}
+```
+
+#### Çıktı
+
+``` 
+Kırmızı renkli daire oluşturuldu
+Çizilen daire: Konum(10, 20), Renk: Kırmızı
+Mavi renkli daire oluşturuldu
+Çizilen daire: Konum(30, 40), Renk: Mavi
+Kırmızı renkli daire oluşturuldu
+Çizilen daire: Konum(50, 60), Renk: Kırmızı
+```
 
 ## Adapter
 
