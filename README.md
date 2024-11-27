@@ -313,3 +313,5 @@ Film izlemeyi bitir...
 TV kapatıldı.
 Sistem kapatıldı.
 ```
+
+Proxy
