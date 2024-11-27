@@ -1,4 +1,4 @@
-~~# Tasarım Desenleri
+# Tasarım Desenleri
 
 # Yapısal Tasarım Desenleri
 
@@ -13,6 +13,7 @@
 # Yaratımsal Tasarım Desenleri
 
 - [Singleton](#Singleton)
+- [Factory](#Factory)
 
 ## Flyweight
 
@@ -802,4 +803,91 @@ public class Main {
 Log: Uygulama başlatıldı!
 Log: Veritabanı bağlantısı kuruldu.
 logger1 ve logger2 aynı nesne.
+```
+
+## Factory
+
+### Amaç?
+
+Nesne oluşturma işlemini bir fabrika metodu aracılığıyla yapmak amacıyla kullanılır. Bu desen, nesne oluşturma sürecini soyutlar ve istemciden (client) nesne oluşturma detaylarını gizler. Yani, bir sınıfın nesnesi oluşturulurken kullanılan türlerin belirlenmesi ve yaratılması süreci, doğrudan istemciden bağımsız bir hale gelir. Factory deseni, genellikle nesne türlerini değiştirmek ya da nesne oluşturma mantığını değiştirmek gerektiğinde kullanılır.
+
+### Ne Zaman Kullanılır?
+
+Bir araba üretim fabrikası düşünün. Bu fabrikada farklı araba türleri (örneğin Sedan, SUV) üretiliyor, ancak istemci yalnızca bir arabanın üretildiğini bilir. Üretim türü (Sedan mı SUV mi?) tamamen fabrika tarafından belirlenir. İstemci, hangi türde araba istediğini bilemez; sadece bir araba ister.
+
+#### Araba Sınıfı (Product)
+
+Öncelikle, üretilecek olan arabaların temel sınıfını tanımlayalım.
+
+```java 
+// Ürün sınıfı
+public abstract class Car {
+    public abstract void drive();
+}
+```
+
+#### Somut Araba Sınıfları (Concrete Products)
+
+Farklı araba türlerini temsil eden sınıflar.
+
+```java 
+// Sedan sınıfı
+public class Sedan extends Car {
+    @Override
+    public void drive() {
+        System.out.println("Sedan araba sürülüyor.");
+    }
+}
+
+// SUV sınıfı
+public class SUV extends Car {
+    @Override
+    public void drive() {
+        System.out.println("SUV araba sürülüyor.");
+    }
+}
+```
+
+#### Factory Sınıfı (Factory)
+
+Nesne oluşturma işini yönetecek fabrika sınıfı. İstemciden bağımsız olarak nesneleri yaratır.
+
+```java 
+// Factory sınıfı
+public class CarFactory {
+    public Car createCar(String type) {
+        if (type.equalsIgnoreCase("Sedan")) {
+            return new Sedan();
+        } else if (type.equalsIgnoreCase("SUV")) {
+            return new SUV();
+        }
+        return null;
+    }
+}
+```
+
+#### Client Kullanımı:
+
+İstemci, doğrudan araba nesnelerini kendisi yaratmaz. Bunun yerine, fabrika sınıfını kullanarak araba nesnelerini oluşturur.
+
+```java 
+public class Main {
+    public static void main(String[] args) {
+        CarFactory factory = new CarFactory();
+        
+        // İstemci, hangi türde araba istediğini belirtir, ancak üretim süreci gizlidir
+        Car sedan = factory.createCar("Sedan");
+        sedan.drive();  // Sedan araba sürülüyor.
+
+        Car suv = factory.createCar("SUV");
+        suv.drive();  // SUV araba sürülüyor.
+    }
+}
+```
+
+#### Çıktı
+
+``` 
+Sedan araba sürülüyor.
+SUV araba sürülüyor.
 ```
