@@ -1,3 +1,5 @@
+~~# Tasarım Desenleri
+
 # Yapısal Tasarım Desenleri
 
 - [Flyweight](#Flyweight)
@@ -7,6 +9,10 @@
 - [Proxy](#Proxy)
 - [Decorator](#Decorator)
 - [Bridge](#Bridge)
+
+# Yaratımsal Tasarım Desenleri
+
+- [Singleton](#Singleton)
 
 ## Flyweight
 
@@ -729,4 +735,71 @@ public class Main {
 Ekran üzerinde daire çizildi: (1.0, 2.0) yarıçap: 3.0
 Yazıcıda daire çizildi: (5.0, 7.0) yarıçap: 8.0
 Ekran üzerinde daire çizildi: (1.0, 2.0) yarıçap: 3.3
+```
+
+## Singleton
+
+### Amaç?
+
+Bir sınıfın yalnızca bir örneğinin oluşturulmasını ve bu örneğe global bir erişim noktası sağlanmasını garanti eder. Bu desen, nesnenin global erişilebilirliğini sağlar, yani sadece bir tane nesne olduğundan, tüm uygulama bu nesneye başvurur.
+
+### Ne Zaman Kullanılır?
+
+Bir uygulama düşünün, burada tüm hata ve bilgi mesajlarını kaydetmek için bir loglama sistemi kullanmak istiyorsunuz. Bu loglama sistemi, uygulama boyunca yalnızca bir kez oluşturulmalı, çünkü her yerde aynı loglama nesnesi kullanılacak.
+
+#### Singleton Sınıfı
+
+Bu sınıf sadece bir örneğini oluşturacak ve uygulama genelinde her yerden bu nesneye erişim sağlayacaktır.
+
+```java 
+// Singleton sınıfı
+public class Logger {
+    private static Logger instance;  // Sınıfın tek örneği
+    private Logger() {  // private constructor, dışarıdan nesne oluşturulmasını engeller
+        // Loglama işlemleri için başlatma kodları
+    }
+
+    // Nesne örneğini döndüren statik metod
+    public static Logger getInstance() {
+        if (instance == null) {
+            instance = new Logger();  // Nesne yalnızca ilk kez çağrıldığında oluşturulur
+        }
+        return instance;  // Her durumda aynı nesneyi döndürür
+    }
+
+    // Loglama işlevi
+    public void log(String message) {
+        System.out.println("Log: " + message);
+    }
+}
+```
+
+#### Client Kullanımı
+
+Uygulamanın her yerinde Logger sınıfını kullanırken, getInstance() metoduyla her zaman aynı nesneyi alırsınız.
+
+```java 
+public class Main {
+    public static void main(String[] args) {
+        // Logger sınıfının tek örneği kullanılıyor
+        Logger logger1 = Logger.getInstance();
+        logger1.log("Uygulama başlatıldı!");
+
+        Logger logger2 = Logger.getInstance();
+        logger2.log("Veritabanı bağlantısı kuruldu.");
+
+        // Her iki logger aynı nesneyi işaret eder
+        if (logger1 == logger2) {
+            System.out.println("logger1 ve logger2 aynı nesne.");
+        }
+    }
+}
+```
+
+#### Çıktı
+
+``` 
+Log: Uygulama başlatıldı!
+Log: Veritabanı bağlantısı kuruldu.
+logger1 ve logger2 aynı nesne.
 ```
