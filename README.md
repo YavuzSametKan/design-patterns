@@ -398,3 +398,118 @@ Java Proxy Deseni videosu yüklendi.
 Java Proxy Deseni oynatılıyor...
 Java Proxy Deseni oynatılıyor...
 ```
+
+## Decorator
+
+### Amaç?
+
+bir nesnenin işlevselliğini dinamik olarak genişletmek için kullanılır. Bu desen, var olan sınıflara yeni özellikler eklemek için kullanılır, ancak bu sınıfların değiştirilmesini gerektirmez. Temelde, nesnelerin davranışını zarf içinde (wrap) ekleme işlemi yapar.
+
+### Ne Zaman Kullanılır?
+
+Bir kahve siparişi verirken, kahvenin üzerine ekstra eklemeler (süt, şeker, çikolata vb.) yapabilirsiniz. Bu eklemeleri dekoratör deseniyle dinamik olarak gerçekleştirebiliriz.
+
+#### Temel Kahve Sınıfı (Component):
+
+Öncelikle, bir temel Kahve sınıfı tanımlarız.
+
+```java
+// Temel Kahve Sınıfı (Component)
+interface Coffee {
+    double cost();  // Kahvenin maliyeti
+}
+```
+
+#### Basit Kahve (ConcreteComponent):
+
+Basit bir kahve türü oluşturuyoruz.
+
+```java
+// Basit Kahve (ConcreteComponent)
+class SimpleCoffee implements Coffee {
+    @Override
+    public double cost() {
+        return 5.00; // Temel kahve fiyatı
+    }
+}
+```
+
+#### Decorator Sınıfı:
+
+Decorator sınıfı, Coffee nesnesinin referansını alır ve temel işlevselliğini genişletir.
+
+```java
+// Dekoratör (Decorator)
+class CoffeeDecorator implements Coffee {
+    protected Coffee decoratedCoffee;
+
+    public CoffeeDecorator(Coffee coffee) {
+        this.decoratedCoffee = coffee;
+    }
+
+    @Override
+    public double cost() {
+        return decoratedCoffee.cost();  // Temel kahvenin fiyatını döner
+    }
+}
+```
+
+#### Ekstra Malzemeler (Concrete Decorators):
+
+Dekoratör sınıfı sayesinde, farklı ekstra malzemeler (süt, şeker vb.) ekleyebiliriz.
+
+```java
+// Süt Eklenmiş Kahve (Concrete Decorator)
+class MilkDecorator extends CoffeeDecorator {
+    public MilkDecorator(Coffee coffee) {
+        super(coffee);
+    }
+
+    @Override
+    public double cost() {
+        return decoratedCoffee.cost() + 1.00; // Süt eklemek için fiyat ekler
+    }
+}
+
+// Şeker Eklenmiş Kahve (Concrete Decorator)
+class SugarDecorator extends CoffeeDecorator {
+    public SugarDecorator(Coffee coffee) {
+        super(coffee);
+    }
+
+    @Override
+    public double cost() {
+        return decoratedCoffee.cost() + 0.50; // Şeker eklemek için fiyat ekler
+    }
+}
+```
+
+#### Kullanım:
+
+Şimdi bu dekoratörleri kullanarak bir kahve oluşturabiliriz.
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        // Basit bir kahve oluştur
+        Coffee myCoffee = new SimpleCoffee();
+        System.out.println("Fiyat: " + myCoffee.cost() + " TL");
+
+        // Sütlü kahve oluştur
+        myCoffee = new MilkDecorator(myCoffee);
+        System.out.println("Fiyat: " + myCoffee.cost() + " TL");
+
+        // Şekerli ve sütlü kahve oluştur
+        myCoffee = new SugarDecorator(myCoffee);
+        System.out.println("Fiyat: " + myCoffee.cost() + " TL");
+    }
+}
+```
+
+#### Çıktı
+
+```
+Fiyat: 5.0 TL
+Fiyat: 6.0 TL
+Fiyat: 6.5 TL
+```
