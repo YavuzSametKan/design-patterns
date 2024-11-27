@@ -273,7 +273,6 @@ class HomeTheaterFacade {
 
     public void endMovie() {
         System.out.println("Film izlemeyi bitir...");
-        bluRayPlayer.play();
         tv.turnOff();
         System.out.println("Sistem kapatıldı.");
     }
@@ -311,7 +310,6 @@ Ses seviyesi 5 olarak ayarlandı.
 Blu-ray oynatılıyor.
 Film keyfi başladı!
 Film izlemeyi bitir...
-Blu-ray oynatılıyor.
 TV kapatıldı.
 Sistem kapatıldı.
 ```
