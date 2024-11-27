@@ -1,4 +1,4 @@
-# Tasarım Desenleri
+# Yapısal Tasarım Desenleri
 
 ## Flyweight
 
@@ -200,5 +200,118 @@ Klasör: Alt Klasör
 Dosya: Dosya1.txt
 ```
 
+## Facade
 
+### Amaç?
 
+Facade tasarım deseni, karmaşık bir sistemi basitleştirerek dış dünyaya daha kolay bir arayüz sunmayı amaçlar. Birden fazla sınıf ve metottan oluşan karmaşık yapılar, Facade ile tek bir arayüz üzerinden erişilebilir hale gelir.
+
+### Ne Zaman Kullanılır?
+
+Bir ev sinema sistemi düşünelim. Bu sistemde:
+- TV 
+- Ses sistemi 
+- Blu-ray oynatıcı gibi bileşenler var.
+
+Bu cihazları ayrı ayrı açmak, ayarlamak yerine tek bir arayüz (Facade) ile tüm sistemi çalıştırabiliriz.
+
+#### Alt Sistem Sınıfları:
+
+Her bir cihaz kendi işlevine sahiptir.
+
+```java
+// TV
+class TV {
+    public void turnOn() {
+        System.out.println("TV açıldı.");
+    }
+
+    public void turnOff() {
+        System.out.println("TV kapatıldı.");
+    }
+}
+
+// Ses Sistemi
+class SoundSystem {
+    public void setVolume(int level) {
+        System.out.println("Ses seviyesi " + level + " olarak ayarlandı.");
+    }
+}
+
+// Blu-ray Oynatıcı
+class BluRayPlayer {
+    public void play() {
+        System.out.println("Blu-ray oynatılıyor.");
+    }
+}
+```
+
+#### Facade Sınıfı:
+
+Karmaşık alt sistemleri basit bir arayüzle birleştirir.
+
+```java
+// Ev Sinema Sistemi Facade
+class HomeTheaterFacade {
+    private TV tv;
+    private SoundSystem soundSystem;
+    private BluRayPlayer bluRayPlayer;
+
+    public HomeTheaterFacade(TV tv, SoundSystem soundSystem, BluRayPlayer bluRayPlayer) {
+        this.tv = tv;
+        this.soundSystem = soundSystem;
+        this.bluRayPlayer = bluRayPlayer;
+    }
+
+    public void watchMovie() {
+        System.out.println("Film izlemeye hazırlanılıyor...");
+        tv.turnOn();
+        soundSystem.setVolume(5);
+        bluRayPlayer.play();
+        System.out.println("Film keyfi başladı!");
+    }
+
+    public void endMovie() {
+        System.out.println("Film izlemeyi bitir...");
+        bluRayPlayer.play();
+        tv.turnOff();
+        System.out.println("Sistem kapatıldı.");
+    }
+}
+```
+#### Kullanım:
+
+Facade sınıfını kullanarak tüm sistemi basitçe yönetelim.
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        TV tv = new TV();
+        SoundSystem soundSystem = new SoundSystem();
+        BluRayPlayer bluRayPlayer = new BluRayPlayer();
+
+        // Facade oluştur
+        HomeTheaterFacade homeTheater = new HomeTheaterFacade(tv, soundSystem, bluRayPlayer);
+
+        // Film başlat
+        homeTheater.watchMovie();
+
+        // Film bitir
+        homeTheater.endMovie();
+    }
+}
+```
+
+#### Çıktı:
+
+```
+Film izlemeye hazırlanılıyor...
+TV açıldı.
+Ses seviyesi 5 olarak ayarlandı.
+Blu-ray oynatılıyor.
+Film keyfi başladı!
+Film izlemeyi bitir...
+Blu-ray oynatılıyor.
+TV kapatıldı.
+Sistem kapatıldı.
+```
