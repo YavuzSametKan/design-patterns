@@ -15,6 +15,7 @@
 - [Singleton](#Singleton)
 - [Factory](#Factory)
 - [Abstract Factory](#Abstract-Factory)
+- [Builder](#Builder)
 
 ## Flyweight
 
@@ -1001,7 +1002,7 @@ public class MacFactory implements GUIFactory {
 }
 ```
 
-#### Client (İstemci) Kullanımı
+#### Client Kullanımı
 
 İstemci kodu, yalnızca ilgili platformu seçer ve doğru bileşen ailesi ile etkileşime girer.
 
@@ -1046,4 +1047,224 @@ Eğer MacFactory kullanılırsa:
 ```
 Mac butonu render ediliyor.
 Mac penceresi render ediliyor.
+```
+
+## Builder
+
+### Amaç?
+
+Bir nesnenin oluşturulma sürecini soyutlamak ve bu süreci adım adım kontrol edebilmek için kullanılır. Builder deseni, bir nesnenin kompleks yapılarının oluşturulmasını adım adım düzenleyerek nesne oluşturmayı daha kontrollü hale getirir. Bu desen, özellikle çok sayıda parametreye sahip, karmaşık nesneler oluşturulurken faydalıdır. Builder deseni, istemciye nesneyi nasıl oluşturduğuna dair detayları gizler ve sadece nesnenin oluşturulmuş halini sunar.
+
+### Ne Zaman Kullanılır?
+
+Bir evin inşası sürecini düşünelim. Bir evin duvarları, pencereleri, kapıları, çatısı gibi birçok farklı bileşeni olabilir. Bu bileşenlerin kombinasyonları ve inşa sıralamaları farklılık gösterebilir. Builder deseni, her bir bileşeni adım adım inşa etmek için kullanılabilir.
+
+#### Ev Bileşenleri (Product)
+
+Ev, bir dizi bileşenden oluşur. Bu bileşenlerin her birini tanımlayalım:
+
+```java 
+// Ev sınıfı (Product)
+public class House {
+    private String foundation;
+    private String walls;
+    private String roof;
+    private String doors;
+    private String windows;
+
+    // Getter ve Setter metodları
+    public void setFoundation(String foundation) {
+        this.foundation = foundation;
+    }
+    public void setWalls(String walls) {
+        this.walls = walls;
+    }
+    public void setRoof(String roof) {
+        this.roof = roof;
+    }
+    public void setDoors(String doors) {
+        this.doors = doors;
+    }
+    public void setWindows(String windows) {
+        this.windows = windows;
+    }
+
+    @Override
+    public String toString() {
+        return "House{" +
+                "foundation='" + foundation + '\'' +
+                ", walls='" + walls + '\'' +
+                ", roof='" + roof + '\'' +
+                ", doors='" + doors + '\'' +
+                ", windows='" + windows + '\'' +
+                '}';
+    }
+}
+```
+
+#### Builder Arayüzü (Builder Interface)
+
+Builder arayüzü, evin her bileşenini oluşturacak metotları tanımlar.
+
+```java 
+// Builder arayüzü
+public interface HouseBuilder {
+    void buildFoundation();
+    void buildWalls();
+    void buildRoof();
+    void buildDoors();
+    void buildWindows();
+    House getResult();
+}
+```
+
+#### Somut Builder Sınıfları (Concrete Builder)
+
+Ev inşa sürecini adım adım kontrol etmek için farklı builder sınıfları tanımlayalım. Örneğin, modern bir ev ve geleneksel bir ev inşa edelim.
+
+```java 
+// ModernEvBuilder
+public class ModernHouseBuilder implements HouseBuilder {
+    private House house;
+
+    public ModernHouseBuilder() {
+        this.house = new House();
+    }
+
+    @Override
+    public void buildFoundation() {
+        house.setFoundation("Modern beton temel");
+    }
+
+    @Override
+    public void buildWalls() {
+        house.setWalls("Modern alçıpan duvarlar");
+    }
+
+    @Override
+    public void buildRoof() {
+        house.setRoof("Düz çatı");
+    }
+
+    @Override
+    public void buildDoors() {
+        house.setDoors("Cam kapı");
+    }
+
+    @Override
+    public void buildWindows() {
+        house.setWindows("Büyük cam pencereler");
+    }
+
+    @Override
+    public House getResult() {
+        return house;
+    }
+}
+
+// GelenekselEvBuilder
+public class TraditionalHouseBuilder implements HouseBuilder {
+    private House house;
+
+    public TraditionalHouseBuilder() {
+        this.house = new House();
+    }
+
+    @Override
+    public void buildFoundation() {
+        house.setFoundation("Taş temel");
+    }
+
+    @Override
+    public void buildWalls() {
+        house.setWalls("Tuğla duvarlar");
+    }
+
+    @Override
+    public void buildRoof() {
+        house.setRoof("Kare çatı");
+    }
+
+    @Override
+    public void buildDoors() {
+        house.setDoors("Ahşap kapılar");
+    }
+
+    @Override
+    public void buildWindows() {
+        house.setWindows("Küçük pencereler");
+    }
+
+    @Override
+    public House getResult() {
+        return house;
+    }
+}
+```
+
+#### Director (Yönetici)
+
+Yönetici sınıfı, nesnenin nasıl oluşturulacağına dair adımları sıralar. İstemci, yönetici sınıfını kullanarak nesnenin adım adım inşa edilmesini sağlar.
+
+```java 
+// Director sınıfı
+public class Director {
+    private HouseBuilder builder;
+
+    public Director(HouseBuilder builder) {
+        this.builder = builder;
+    }
+
+    public void constructHouse() {
+        builder.buildFoundation();
+        builder.buildWalls();
+        builder.buildRoof();
+        builder.buildDoors();
+        builder.buildWindows();
+    }
+}
+```
+
+#### İstemci Kullanımı
+
+İstemci, hangi ev türünü inşa etmek istediğini belirler ve süreci başlatır.
+
+```java 
+// İstemci Kullanımı
+public class Client {
+    public static void main(String[] args) {
+        // ModernEvBuilder ile bir ev inşa et
+        HouseBuilder modernHouseBuilder = new ModernHouseBuilder();
+        Director director = new Director(modernHouseBuilder);
+        director.constructHouse();
+        House modernHouse = modernHouseBuilder.getResult();
+        System.out.println(modernHouse);
+
+        // GelenekselEvBuilder ile bir ev inşa et
+        HouseBuilder traditionalHouseBuilder = new TraditionalHouseBuilder();
+        director = new Director(traditionalHouseBuilder);
+        director.constructHouse();
+        House traditionalHouse = traditionalHouseBuilder.getResult();
+        System.out.println(traditionalHouse);
+    }
+}
+```
+
+#### Çıktı
+
+```
+House{
+    foundation='Modern beton temel',
+    walls='Modern alçıpan duvarlar',
+    roof='Düz çatı', 
+    doors='Cam kapı',
+    windows='Büyük cam pencereler'
+}
+House{
+    foundation='Taş temel',
+    walls='Tuğla duvarlar',
+    roof='Kare çatı',
+    doors='Ahşap kapılar',
+    windows='Küçük pencereler'
+}
 ```
