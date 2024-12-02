@@ -30,7 +30,7 @@ Nesne oluşturma sürecini yönetir ve nesnelerin yaratılmasında esneklik sağ
 
 Nesneler arasındaki iletişimi ve davranışları düzenler. Bu desenler, nesnelerin etkileşim biçimlerini optimize eder ve daha esnek hale getirir.
 
-- [Strategy](Strategy)
+- [Strategy](#Strategy)
 
 ## Flyweight
 
