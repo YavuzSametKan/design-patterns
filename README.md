@@ -1,10 +1,10 @@
-# Tasarım Desenleri
+# Tasarım Desenleri (Design Patterns)
 
 Tasarım desenleri, yazılım geliştirme süreçlerinde karşılaşılan yaygın problemleri çözmek için önerilen, tekrar kullanılabilir ve sistematik çözümlerdir. Bu desenler, yazılımın yapısını ve tasarımını belirlerken en iyi uygulamaları ve standartları takip etmeyi sağlar.
 
 Tasarım desenleri genellikle 3 ana kategoriye ayrılır. Haydi bu başlıkları beraber inceleyelim.
 
-# Yapısal Tasarım Desenleri
+# Yapısal (Structural) Tasarım Desenleri
 
 Farklı sınıflar ve nesneler arasındaki ilişkileri düzenler ve bunları daha esnek ve verimli hale getirir. Yapısal desenler, sistemin bileşenleri arasında daha iyi bir yapı kurar.
 
@@ -16,7 +16,7 @@ Farklı sınıflar ve nesneler arasındaki ilişkileri düzenler ve bunları dah
 - [Decorator](#Decorator)
 - [Bridge](#Bridge)
 
-# Yaratımsal Tasarım Desenleri
+# Yaratımsal (Creational) Tasarım Desenleri
 
 Nesne oluşturma sürecini yönetir ve nesnelerin yaratılmasında esneklik sağlar. Bu desenler, nesne oluşturma süreçlerini soyutlayarak yazılımın bağımlılıklarını azaltır.
 
@@ -26,11 +26,11 @@ Nesne oluşturma sürecini yönetir ve nesnelerin yaratılmasında esneklik sağ
 - [Builder](#Builder)
 - [Prototype](#Prototype)
 
-# Davranışsal Tasarım Desenleri
+# Davranışsal (Behavioral) Tasarım Desenleri
 
 Nesneler arasındaki iletişimi ve davranışları düzenler. Bu desenler, nesnelerin etkileşim biçimlerini optimize eder ve daha esnek hale getirir.
 
-- Çok Yakında...
+- [Strategy](Strategy)
 
 ## Flyweight
 
@@ -1420,4 +1420,93 @@ public class Client {
 Kenar uzunluğu: 4
 Çevresi çiziliyor, yarıçap: 10
 Kenar uzunluğu: 6
+```
+
+## Strategy
+
+### Amaç? 
+
+Strategy deseni, bir ailenin benzer algoritmalarını tanımlayıp, bu algoritmaları birbirlerinin yerine kullanılabilir hale getirir. Algoritmayı kullanacak sınıftan bağımsız olarak algoritmaları değiştirebilme esnekliği sağlar.
+
+### Ne Zaman Kullanılır?
+
+Bir e-ticaret uygulamasında farklı ödeme yöntemleriyle (kredi kartı, PayPal, kripto para) ödeme yapılmasını sağlayan bir yapı düşünelim.
+
+1. Kullanıcı, alışverişi tamamladığında ödeme yöntemi seçer.
+2. Seçilen ödeme yöntemi doğrultusunda, farklı ödeme işlemleri uygulanır.
+
+#### Strategy Arayüzü
+
+Ödeme işlemini tanımlayan PaymentStrategy adında bir arayüz oluşturulur.
+
+```java
+public interface PaymentStrategy {
+    void pay(double amount);
+}
+```
+
+#### Concrete Strategy (Somut Stratejiler)
+
+Her ödeme yöntemi için farklı strateji sınıfları oluşturulur.
+
+```java 
+public class CreditCardPayment implements PaymentStrategy {
+    @Override
+    public void pay(double amount) {
+        System.out.println("Kredi kartıyla " + amount + " TL ödendi.");
+    }
+}
+
+public class PayPalPayment implements PaymentStrategy {
+    @Override
+    public void pay(double amount) {
+        System.out.println("PayPal ile " + amount + " TL ödendi.");
+    }
+}
+
+public class CryptoPayment implements PaymentStrategy {
+    @Override
+    public void pay(double amount) {
+        System.out.println("Kripto para ile " + amount + " TL ödendi.");
+    }
+}
+```
+
+#### Context (Bağlam) Sınıfı
+
+Kullanıcıdan hangi stratejiyi kullanacağını belirleyen sınıf.
+
+```java 
+public class ShoppingCart {
+    private PaymentStrategy paymentStrategy;
+    
+    public ShoppingCart(PaymentStrategy paymentStrategy) {
+        this.paymentStrategy = paymentStrategy;
+    }
+    
+    public void checkout(double amount) {
+        paymentStrategy.pay(amount);
+    }
+}
+```
+
+#### Kullanım
+
+```java 
+public class Main {
+    public static void main(String[] args) {
+        ShoppingCart cart1 = new ShoppingCart(new CreditCardPayment());
+        cart1.checkout(250.0); // Çıktı: Kredi kartıyla 250.0 TL ödendi.
+        
+        ShoppingCart cart2 = new ShoppingCart(new PayPalPayment());
+        cart2.checkout(150.0); // Çıktı: PayPal ile 150.0 TL ödendi.
+    }
+}
+```
+
+#### Çıktı
+
+```
+Kredi kartıyla 250.0 TL ödendi.
+PayPal ile 150.0 TL ödendi.
 ```
