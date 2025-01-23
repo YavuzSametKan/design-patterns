@@ -2263,3 +2263,125 @@ Uçak 3 gönderiyor: Pist temiz, iniş yapabilirsiniz.
 Uçak 1 aldı: Pist temiz, iniş yapabilirsiniz.
 Uçak 2 aldı: Pist temiz, iniş yapabilirsiniz.
 ```
+
+## Chain of Responsibility
+
+### Amaç?
+
+Chain of Responsibility (Sorumluluk Zinciri) tasarım deseni, bir isteği işlemek için birden fazla nesnenin bir zincir halinde bağlandığı bir yapı oluşturur. İstek, bu zincir boyunca ilerler ve her nesne, isteği işleyip işlemeyeceğine kendisi karar verir. Bu desen, isteği gönderen ile isteği işleyen nesneler arasındaki bağımlılığı azaltır ve esnek bir yapı sunar.
+
+### Ne Zaman Kullanılır?
+
+**Senaryo:** Bir destek hattı (support ticket) sistemi düşünün. Bu sistemde, müşterilerden gelen destek talepleri farklı seviyelerdeki destek ekipleri tarafından işlenir.
+
+Örneğin:
+- Seviye 1 Destek: Basit sorunları çözer (örneğin, şifre sıfırlama).
+- Seviye 2 Destek: Daha karmaşık sorunları çözer (örneğin, yazılım hataları).
+- Seviye 3 Destek: Kritik sorunları çözer (örneğin, donanım arızaları).
+
+Chain of Responsibility Pattern, bu tür senaryolarda kullanılır. Her destek seviyesi, bir sonraki seviyeye bağlanır ve talep, zincir boyunca ilerler. Eğer bir seviye talebi işleyemezse, talebi bir sonraki seviyeye iletir.
+
+#### Handler Arayüzü
+
+```java
+// Handler (İşleyici) Arayüzü
+interface SupportHandler {
+    void setNextHandler(SupportHandler nextHandler);  // Sonraki işleyiciyi ayarla
+    void handleRequest(String request);  // İsteği işle
+}
+```
+
+#### ConcreteHandler (Somut İşleyici)
+
+```java
+// Somut İşleyici: Seviye 1 Destek
+class Level1Support implements SupportHandler {
+    private SupportHandler nextHandler;
+
+    @Override
+    public void setNextHandler(SupportHandler nextHandler) {
+        this.nextHandler = nextHandler;
+    }
+
+    @Override
+    public void handleRequest(String request) {
+        if (request.contains("şifre")) {
+            System.out.println("Seviye 1 Destek: Şifre sıfırlama işlemi yapıldı.");
+        } else if (nextHandler != null) {
+            nextHandler.handleRequest(request);  // İsteği bir sonraki işleyiciye ilet
+        }
+    }
+}
+
+// Somut İşleyici: Seviye 2 Destek
+class Level2Support implements SupportHandler {
+    private SupportHandler nextHandler;
+
+    @Override
+    public void setNextHandler(SupportHandler nextHandler) {
+        this.nextHandler = nextHandler;
+    }
+
+    @Override
+    public void handleRequest(String request) {
+        if (request.contains("yazılım")) {
+            System.out.println("Seviye 2 Destek: Yazılım hatası çözüldü.");
+        } else if (nextHandler != null) {
+            nextHandler.handleRequest(request);  // İsteği bir sonraki işleyiciye ilet
+        }
+    }
+}
+
+// Somut İşleyici: Seviye 3 Destek
+class Level3Support implements SupportHandler {
+    private SupportHandler nextHandler;
+
+    @Override
+    public void setNextHandler(SupportHandler nextHandler) {
+        this.nextHandler = nextHandler;
+    }
+
+    @Override
+    public void handleRequest(String request) {
+        if (request.contains("donanım")) {
+            System.out.println("Seviye 3 Destek: Donanım arızası giderildi.");
+        } else if (nextHandler != null) {
+            nextHandler.handleRequest(request);  // İsteği bir sonraki işleyiciye ilet
+        } else {
+            System.out.println("Destek ekibi bu talebi işleyemiyor.");
+        }
+    }
+}
+```
+
+#### Client (İstemci)
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        // Destek işleyicileri oluştur
+        SupportHandler level1 = new Level1Support();
+        SupportHandler level2 = new Level2Support();
+        SupportHandler level3 = new Level3Support();
+
+        // Zinciri oluştur
+        level1.setNextHandler(level2);
+        level2.setNextHandler(level3);
+
+        // Destek taleplerini işle
+        level1.handleRequest("Şifremi unuttum, sıfırlayabilir misiniz?");
+        level1.handleRequest("Yazılımda bir hata var, çözebilir misiniz?");
+        level1.handleRequest("Donanım arızası var, yardım edebilir misiniz?");
+        level1.handleRequest("İnternet bağlantım yok, ne yapmalıyım?");
+    }
+}
+```
+
+#### Çıktı
+
+```
+Seviye 1 Destek: Şifre sıfırlama işlemi yapıldı.
+Seviye 2 Destek: Yazılım hatası çözüldü.
+Seviye 3 Destek: Donanım arızası giderildi.
+Destek ekibi bu talebi işleyemiyor.
+```
