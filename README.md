@@ -2397,7 +2397,7 @@ Visitor (Ziyaretçi) tasarım deseni, bir nesne yapısındaki elemanlara yeni i�
 **Senaryo:** Bir belge işleme sistemi düşünün. Bu sistemde farklı türde belge elemanları (örneğin, metin, resim, tablo) bulunur. Bu elemanlar üzerinde farklı işlemler (örneğin, dışa aktarma, yazdırma, analiz etme) gerçekleştirilir. Visitor Design Pattern, bu tür senaryolarda kullanılır.
 
 Örneğin:
-- Dışa Aktarma İşlemi: Belge elemanlarını PDF veya HTML formatında dışa aktarmak.
+- Dışa Aktarma İşlemi: Belge elemanlarını PDF veya PNG formatında dışa aktarmak.
 - Yazdırma İşlemi: Belge elemanlarını yazdırmak.
 - Analiz İşlemi: Belge elemanlarını analiz ederek istatistikler çıkarmak.
 
