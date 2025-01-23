@@ -2570,9 +2570,8 @@ State (Durum) tasarım deseni, bir nesnenin iç durumu değiştiğinde davranı�
 **Senaryo:** Bir müzik çalar (music player) uygulaması düşünün. Bu uygulamada, çalma durumuna göre farklı davranışlar sergilenir.
 
 Örneğin:
-- Çalma Durumu (Playing State): Müzik çalıyorken, "play" butonu müziği duraklatır.
-- Duraklatma Durumu (Paused State): Müzik duraklatılmışken, "play" butonu müziği devam ettirir.
-- Durdurma Durumu (Stopped State): Müzik durdurulmuşken, "play" butonu müziği baştan başlatır.
+- Çalma Durumu (Playing State): Müzik çalıyorken, "play" butonu müziği durdurur.
+- Durdurma Durumu (Stopped State): Müzik durdurulmuşken, "play" butonu müziği başlatır.
 
 State Design Pattern, bu tür senaryolarda kullanılır. Her durum, ayrı bir sınıf tarafından temsil edilir ve durum değişikliği sırasında davranış otomatik olarak güncellenir.
 
@@ -2581,9 +2580,7 @@ State Design Pattern, bu tür senaryolarda kullanılır. Her durum, ayrı bir s�
 ```java
 // State (Durum) Arayüzü
 interface MusicPlayerState {
-    void play();  // Çalma işlemi
-    void pause();  // Duraklatma işlemi
-    void stop();  // Durdurma işlemi
+    void play();  // Çalma veya durdurma işlemi
 }
 ```
 
@@ -2600,43 +2597,6 @@ class PlayingState implements MusicPlayerState {
 
     @Override
     public void play() {
-        System.out.println("Müzik zaten çalıyor.");
-    }
-
-    @Override
-    public void pause() {
-        System.out.println("Müzik duraklatıldı.");
-        player.setState(player.getPausedState());  // Duraklatma durumuna geç
-    }
-
-    @Override
-    public void stop() {
-        System.out.println("Müzik durduruldu.");
-        player.setState(player.getStoppedState());  // Durdurma durumuna geç
-    }
-}
-
-// Somut Durum: Duraklatma Durumu
-class PausedState implements MusicPlayerState {
-    private MusicPlayer player;
-
-    public PausedState(MusicPlayer player) {
-        this.player = player;
-    }
-
-    @Override
-    public void play() {
-        System.out.println("Müzik devam ediyor.");
-        player.setState(player.getPlayingState());  // Çalma durumuna geç
-    }
-
-    @Override
-    public void pause() {
-        System.out.println("Müzik zaten duraklatılmış.");
-    }
-
-    @Override
-    public void stop() {
         System.out.println("Müzik durduruldu.");
         player.setState(player.getStoppedState());  // Durdurma durumuna geç
     }
@@ -2655,16 +2615,6 @@ class StoppedState implements MusicPlayerState {
         System.out.println("Müzik başlatıldı.");
         player.setState(player.getPlayingState());  // Çalma durumuna geç
     }
-
-    @Override
-    public void pause() {
-        System.out.println("Müzik durdurulmuş, duraklatılamaz.");
-    }
-
-    @Override
-    public void stop() {
-        System.out.println("Müzik zaten durdurulmuş.");
-    }
 }
 ```
 
@@ -2674,13 +2624,11 @@ class StoppedState implements MusicPlayerState {
 // Context (Bağlam): Müzik Çalar
 class MusicPlayer {
     private MusicPlayerState playingState;
-    private MusicPlayerState pausedState;
     private MusicPlayerState stoppedState;
     private MusicPlayerState currentState;
 
     public MusicPlayer() {
         this.playingState = new PlayingState(this);
-        this.pausedState = new PausedState(this);
         this.stoppedState = new StoppedState(this);
         this.currentState = stoppedState;  // Başlangıç durumu: Durdurulmuş
     }
@@ -2693,24 +2641,12 @@ class MusicPlayer {
         return playingState;
     }
 
-    public MusicPlayerState getPausedState() {
-        return pausedState;
-    }
-
     public MusicPlayerState getStoppedState() {
         return stoppedState;
     }
 
     public void play() {
-        currentState.play();  // Mevcut duruma göre çalma işlemi
-    }
-
-    public void pause() {
-        currentState.pause();  // Mevcut duruma göre duraklatma işlemi
-    }
-
-    public void stop() {
-        currentState.stop();  // Mevcut duruma göre durdurma işlemi
+        currentState.play();  // Mevcut duruma göre çalma/durdurma işlemi
     }
 }
 ```
@@ -2725,10 +2661,9 @@ public class Main {
 
         // Müzik çalma işlemleri
         player.play();  // Müzik başlatıldı.
-        player.pause();  // Müzik duraklatıldı.
-        player.play();  // Müzik devam ediyor.
-        player.stop();  // Müzik durduruldu.
-        player.pause();  // Müzik durdurulmuş, duraklatılamaz.
+        player.play();  // Müzik durduruldu.
+        player.play();  // Müzik başlatıldı.
+        player.play();  // Müzik durduruldu.
     }
 }
 ```
@@ -2737,8 +2672,7 @@ public class Main {
 
 ```
 Müzik başlatıldı.
-Müzik duraklatıldı.
-Müzik devam ediyor.
 Müzik durduruldu.
-Müzik durdurulmuş, duraklatılamaz.
+Müzik başlatıldı.
+Müzik durduruldu.
 ```
