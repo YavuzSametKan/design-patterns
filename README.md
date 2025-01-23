@@ -2385,3 +2385,167 @@ Seviye 2 Destek: Yazılım hatası çözüldü.
 Seviye 3 Destek: Donanım arızası giderildi.
 Destek ekibi bu talebi işleyemiyor.
 ```
+
+## Visitor
+
+### Amaç?
+
+Visitor (Ziyaretçi) tasarım deseni, bir nesne yapısındaki elemanlara yeni işlemler eklemeyi kolaylaştırır. Bu desen, nesnelerin yapısını değiştirmeden, bu nesneler üzerinde farklı işlemler gerçekleştirmeyi sağlar. Bu sayede, yeni işlemler eklemek için mevcut kodu değiştirmek gerekmez.
+
+### Ne Zaman Kullanılır?
+
+**Senaryo:** Bir belge işleme sistemi düşünün. Bu sistemde farklı türde belge elemanları (örneğin, metin, resim, tablo) bulunur. Bu elemanlar üzerinde farklı işlemler (örneğin, dışa aktarma, yazdırma, analiz etme) gerçekleştirilir. Visitor Design Pattern, bu tür senaryolarda kullanılır.
+
+Örneğin:
+- Dışa Aktarma İşlemi: Belge elemanlarını PDF veya HTML formatında dışa aktarmak.
+- Yazdırma İşlemi: Belge elemanlarını yazdırmak.
+- Analiz İşlemi: Belge elemanlarını analiz ederek istatistikler çıkarmak.
+
+Visitor Pattern, bu işlemleri belge elemanlarının yapısını değiştirmeden eklemeyi sağlar. Her işlem, bir "ziyaretçi" tarafından gerçekleştirilir.
+
+#### Visitor Arayüzü
+
+```java
+// Visitor (Ziyaretçi) Arayüzü
+interface DocumentVisitor {
+    void visit(TextElement text);  // Metin elemanını ziyaret et
+    void visit(ImageElement image);  // Resim elemanını ziyaret et
+}
+```
+
+#### ConcreteVisitor (Somut Ziyaretçi)
+
+```java
+// Somut Ziyaretçi: Dışa Aktarma İşlemi
+class ExportVisitor implements DocumentVisitor {
+    @Override
+    public void visit(TextElement text) {
+        System.out.println("Metin elemanı PDF olarak dışa aktarıldı: " + text.getContent());
+    }
+
+    @Override
+    public void visit(ImageElement image) {
+        System.out.println("Resim elemanı PNG olarak dışa aktarıldı: " + image.getFileName());
+    }
+}
+
+// Somut Ziyaretçi: Yazdırma İşlemi
+class PrintVisitor implements DocumentVisitor {
+    @Override
+    public void visit(TextElement text) {
+        System.out.println("Metin elemanı yazdırıldı: " + text.getContent());
+    }
+
+    @Override
+    public void visit(ImageElement image) {
+        System.out.println("Resim elemanı yazdırıldı: " + image.getFileName());
+    }
+}
+```
+
+#### Element (Eleman)
+
+```java
+// Element (Eleman) Arayüzü
+interface DocumentElement {
+    void accept(DocumentVisitor visitor);  // Ziyaretçiyi kabul et
+}
+```
+
+#### ConcreteElement (Somut Eleman)
+
+```java
+// Somut Eleman: Metin
+class TextElement implements DocumentElement {
+    private String content;
+
+    public TextElement(String content) {
+        this.content = content;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    @Override
+    public void accept(DocumentVisitor visitor) {
+        visitor.visit(this);  // Ziyaretçiyi kabul et
+    }
+}
+
+// Somut Eleman: Resim
+class ImageElement implements DocumentElement {
+    private String fileName;
+
+    public ImageElement(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    @Override
+    public void accept(DocumentVisitor visitor) {
+        visitor.visit(this);  // Ziyaretçiyi kabul et
+    }
+}
+```
+
+#### ObjectStructure (Nesne Yapısı)
+
+```java
+// Nesne Yapısı: Belge
+class Document {
+    private List<DocumentElement> elements = new ArrayList<>();
+
+    public void addElement(DocumentElement element) {
+        elements.add(element);  // Eleman ekle
+    }
+
+    public void accept(DocumentVisitor visitor) {
+        for (DocumentElement element : elements) {
+            element.accept(visitor);  // Tüm elemanları ziyaretçiye göster
+        }
+    }
+}
+```
+
+#### Client (İstemci)
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        // Belge oluştur
+        Document document = new Document();
+        document.addElement(new TextElement("Merhaba Dünya!"));
+        document.addElement(new ImageElement("foto.png"));
+
+        // Ziyaretçiler oluştur
+        DocumentVisitor exportVisitor = new ExportVisitor();
+        DocumentVisitor printVisitor = new PrintVisitor();
+
+        // Belgeyi dışa aktar
+        System.out.println("Belge dışa aktarılıyor:");
+        document.accept(exportVisitor);
+
+        System.out.println();
+
+        // Belgeyi yazdır
+        System.out.println("Belge yazdırılıyor:");
+        document.accept(printVisitor);
+    }
+}
+```
+
+#### Çıktı
+
+```
+Belge dışa aktarılıyor:
+Metin elemanı PDF olarak dışa aktarıldı: Merhaba Dünya!
+Resim elemanı PNG olarak dışa aktarıldı: foto.png
+
+Belge yazdırılıyor:
+Metin elemanı yazdırıldı: Merhaba Dünya!
+Resim elemanı yazdırıldı: foto.png
+```
