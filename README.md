@@ -1762,3 +1762,120 @@ Playlist'teki şarkılar:
 Çalınıyor: Şarkı 3
 Çalınıyor: Şarkı 4
 ```
+
+## Template
+
+### Amaç?
+
+Template (Şablon) tasarım deseni, bir algoritmanın iskeletini tanımlar ve bazı adımların alt sınıflar tarafından uygulanmasını sağlar. Bu desen, algoritmanın genel yapısını korurken, belirli adımların değiştirilmesine izin verir. Böylece, kod tekrarı önlenir ve esneklik sağlanır.
+
+### Ne Zaman Kullanılır?
+
+**Senaryo:** Bir kahve dükkanı uygulaması düşünün. Bu dükkanda hem kahve hem de çay hazırlanıyor. Her ikisinin hazırlanma süreci benzer adımlardan oluşur:
+
+- Su kaynatma.
+- Demleme (kahve veya çay). 
+- Bardakta servis etme. 
+- İsteğe bağlı olarak süt veya şeker ekleme.
+
+Ancak, kahve ve çayın demleme adımları farklıdır. Template Design Pattern, bu tür senaryolarda kullanılır. Algoritmanın genel yapısını (su kaynatma, servis etme) korurken, demleme gibi belirli adımları alt sınıflara bırakır.
+
+#### AbstractClass (Soyut Sınıf)
+
+```java
+// Soyut Sınıf: İçecek hazırlama şablonu
+abstract class Beverage {
+
+    // Template Metodu: Algoritmanın iskeleti
+    public final void prepareBeverage() {
+        boilWater();       // Su kaynat
+        brew();            // Demle (soyut adım)
+        pourInCup();       // Bardakta servis et
+        addCondiments();   // İsteğe bağlı ek malzemeler (soyut adım)
+    }
+
+    // Ortak adım: Su kaynatma
+    private void boilWater() {
+        System.out.println("Su kaynatılıyor...");
+    }
+
+    // Ortak adım: Bardakta servis etme
+    private void pourInCup() {
+        System.out.println("Bardakta servis ediliyor...");
+    }
+
+    // Soyut adım: Demleme (alt sınıflar tarafından uygulanacak)
+    protected abstract void brew();
+
+    // Soyut adım: Ek malzemeler (alt sınıflar tarafından uygulanacak)
+    protected abstract void addCondiments();
+}
+```
+
+#### ConcreteClass (Somut Sınıf)
+
+```java
+// Somut Sınıf: Kahve hazırlama
+class Coffee extends Beverage {
+
+    @Override
+    protected void brew() {
+        System.out.println("Kahve demleniyor...");
+    }
+
+    @Override
+    protected void addCondiments() {
+        System.out.println("Süt ve şeker ekleniyor...");
+    }
+}
+
+// Somut Sınıf: Çay hazırlama
+class Tea extends Beverage {
+
+    @Override
+    protected void brew() {
+        System.out.println("Çay demleniyor...");
+    }
+
+    @Override
+    protected void addCondiments() {
+        System.out.println("Limon ekleniyor...");
+    }
+}
+```
+
+#### Client (İstemci)
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        // Kahve hazırla
+        System.out.println("Kahve hazırlanıyor:");
+        Beverage coffee = new Coffee();
+        coffee.prepareBeverage();
+
+        System.out.println();
+
+        // Çay hazırla
+        System.out.println("Çay hazırlanıyor:");
+        Beverage tea = new Tea();
+        tea.prepareBeverage();
+    }
+}
+```
+
+#### Çıktı
+
+```
+Kahve hazırlanıyor:
+Su kaynatılıyor...
+Kahve demleniyor...
+Bardakta servis ediliyor...
+Süt ve şeker ekleniyor...
+
+Çay hazırlanıyor:
+Su kaynatılıyor...
+Çay demleniyor...
+Bardakta servis ediliyor...
+Limon ekleniyor...
+```
