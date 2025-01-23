@@ -31,6 +31,15 @@ Nesne oluşturma sürecini yönetir ve nesnelerin yaratılmasında esneklik sağ
 Nesneler arasındaki iletişimi ve davranışları düzenler. Bu desenler, nesnelerin etkileşim biçimlerini optimize eder ve daha esnek hale getirir.
 
 - [Strategy](#Strategy)
+- [Command](#Command)
+- [Iterator](#Iterator)
+- [Template](#Template)
+- [Observer](#Observer)
+- [Memento](#Memento)
+- [Mediator](#Mediator)
+- [Chain of Responsibility](#Chain-of-Responsibility)
+- [Visitor](#Visitor)
+- [State](#State)
 
 ## Flyweight
 
