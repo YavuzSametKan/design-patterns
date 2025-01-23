@@ -2010,3 +2010,123 @@ Yeni haber yayınlandı: Yeni bir film vizyona girdi!
 Ahmet için yeni haber: Yeni bir film vizyona girdi!
 Ayşe için yeni haber: Yeni bir film vizyona girdi!
 ```
+
+## Memento
+
+### Amaç?
+
+Memento (Hatıra) tasarım deseni, bir nesnenin iç durumunu kaydetmeyi ve daha sonra bu durumu geri yüklemeyi sağlar. Bu desen, nesnenin iç yapısını gizler ve durum yönetimini kolaylaştırır. Genellikle "geri alma" (undo) veya "durum kaydetme" gibi işlemlerde kullanılır.
+
+### Ne Zaman Kullanılır?
+
+**Senaryo:** Bir metin düzenleyici (text editor) uygulaması düşünün. Bu uygulamada kullanıcılar metin yazabilir ve daha sonra yaptıkları değişiklikleri geri alabilir (undo). Memento Design Pattern, bu tür senaryolarda kullanılır.
+
+Örneğin:
+- Metin Kaydetme: Kullanıcı metni düzenler ve bu durum kaydedilir.
+- Geri Alma (Undo): Kullanıcı bir önceki duruma geri döner.
+- Yineleme (Redo): Kullanıcı geri aldığı işlemi tekrar uygular.
+
+Memento Pattern, nesnenin durumunu kaydeder ve bu durumu daha sonra geri yükler. Bu sayede, nesnenin iç yapısı dışarıya açılmaz ve durum yönetimi kolaylaştırılır.
+
+#### Memento (Hatıra)
+
+```java
+// Memento: Metin durumunu saklar
+class TextMemento {
+    private final String text;  // Metin durumu
+
+    public TextMemento(String text) {
+        this.text = text;
+    }
+
+    public String getText() {
+        return text;  // Kaydedilen metni döndür
+    }
+}
+```
+
+#### Originator (Başlatıcı)
+
+```java
+// Originator: Metin düzenleyici
+class TextEditor {
+    private String text;  // Metin durumu
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    // Metin durumunu kaydet
+    public TextMemento save() {
+        return new TextMemento(text);
+    }
+
+    // Metin durumunu geri yükle
+    public void restore(TextMemento memento) {
+        this.text = memento.getText();
+    }
+}
+```
+
+#### Caretaker (Bakıcı)
+
+```java
+// Caretaker: Memento nesnelerini yönetir
+class History {
+    private final Stack<TextMemento> mementos = new Stack<>();  // Memento yığını
+
+    // Memento kaydet
+    public void save(TextMemento memento) {
+        mementos.push(memento);
+    }
+
+    // Son Memento'yu geri yükle
+    public TextMemento undo() {
+        if (!mementos.isEmpty()) {
+            return mementos.pop();  // Son durumu geri yükle
+        }
+        return null;
+    }
+}
+```
+
+#### Client (İstemci)
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        // Metin düzenleyici ve geçmiş yöneticisi oluştur
+        TextEditor editor = new TextEditor();
+        History history = new History();
+
+        // Metin yaz ve durumu kaydet
+        editor.setText("Merhaba Dünya!");
+        history.save(editor.save());
+        System.out.println("Güncel Metin: " + editor.getText());
+
+        // Metni değiştir ve durumu kaydet
+        editor.setText("Bu bir test mesajıdır.");
+        history.save(editor.save());
+        System.out.println("Güncel Metin: " + editor.getText());
+
+        // Geri alma (undo) işlemi
+        TextMemento previousState = history.undo();
+        if (previousState != null) {
+            editor.restore(previousState);
+            System.out.println("Geri alındı. Güncel Metin: " + editor.getText());
+        }
+    }
+}
+```
+
+#### Çıktı
+
+```
+Güncel Metin: Merhaba Dünya!
+Güncel Metin: Bu bir test mesajıdır.
+Geri alındı. Güncel Metin: Merhaba Dünya!
+```
