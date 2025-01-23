@@ -1879,3 +1879,134 @@ Su kaynatılıyor...
 Bardakta servis ediliyor...
 Limon ekleniyor...
 ```
+
+## Observer
+
+### Amaç?
+
+Observer (Gözlemci) tasarım deseni, bir nesnenin durumu değiştiğinde, bu nesneye bağlı olan diğer nesnelere otomatik olarak bildirim göndermeyi sağlar. Bu desen, nesneler arasında gevşek bir bağlantı (loose coupling) oluşturur ve durum değişikliklerinin takip edilmesini kolaylaştırır.
+
+### Ne Zaman Kullanılır?
+
+**Senaryo:** Bir haber portalı düşünün. Bu portalda yeni haberler yayınlandığında, abonelere otomatik olarak bildirim gönderilsin. 
+
+Örneğin:
+- Yeni Haber Yayınlandığında: Aboneler (kullanıcılar) anında haberdar olur. 
+- Abonelik İptali: Bir kullanıcı artık bildirim almak istemiyorsa, abonelikten çıkabilir.
+
+Observer Design Pattern, bu tür senaryolarda kullanılır. Haber portalı (Subject) ve aboneler (Observers) arasında gevşek bir bağlantı kurar. Haber portalı, abonelerin kim olduğunu bilmez, sadece bildirim gönderir.
+
+#### Observer Arayüzü
+
+```java
+// Observer (Gözlemci) Arayüzü
+interface Observer {
+    void update(String news);  // Bildirim al
+}
+```
+
+#### ConcreteObserver (Somut Gözlemci)
+
+```java
+// Somut Gözlemci: Abone
+class Subscriber implements Observer {
+    private String name;
+
+    public Subscriber(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void update(String news) {
+        System.out.println(name + " için yeni haber: " + news);
+    }
+}
+```
+
+#### Subject (Gözlemlenen)
+
+```java
+// Subject (Gözlemlenen) Arayüzü
+interface NewsAgency {
+    void registerObserver(Observer observer);  // Gözlemci ekle
+    void removeObserver(Observer observer);    // Gözlemci çıkar
+    void notifyObservers(String news);         // Gözlemcilere bildirim gönder
+}
+```
+
+#### ConcreteSubject (Somut Gözlemlenen)
+
+```java
+// Somut Gözlemlenen: Haber Ajansı
+class ConcreteNewsAgency implements NewsAgency {
+    private List<Observer> observers = new ArrayList<>();
+
+    @Override
+    public void registerObserver(Observer observer) {
+        observers.add(observer);  // Gözlemci ekle
+    }
+
+    @Override
+    public void removeObserver(Observer observer) {
+        observers.remove(observer);  // Gözlemci çıkar
+    }
+
+    @Override
+    public void notifyObservers(String news) {
+        for (Observer observer : observers) {
+            observer.update(news);  // Tüm gözlemcilere bildirim gönder
+        }
+    }
+
+    // Yeni haber yayınla
+    public void publishNews(String news) {
+        System.out.println("Yeni haber yayınlandı: " + news);
+        notifyObservers(news);  // Gözlemcilere bildirim gönder
+    }
+}
+```
+
+#### Client (İstemci)
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        // Haber ajansı oluştur
+        ConcreteNewsAgency newsAgency = new ConcreteNewsAgency();
+
+        // Aboneler oluştur
+        Observer subscriber1 = new Subscriber("Ahmet");
+        Observer subscriber2 = new Subscriber("Mehmet");
+        Observer subscriber3 = new Subscriber("Ayşe");
+
+        // Aboneleri haber ajansına kaydet
+        newsAgency.registerObserver(subscriber1);
+        newsAgency.registerObserver(subscriber2);
+        newsAgency.registerObserver(subscriber3);
+
+        // Yeni haber yayınla
+        newsAgency.publishNews("Bugün hava çok güzel!");
+
+        System.out.println();
+
+        // Bir abonenin aboneliğini iptal et
+        newsAgency.removeObserver(subscriber2);
+
+        // Yeni haber yayınla
+        newsAgency.publishNews("Yeni bir film vizyona girdi!");
+    }
+}
+```
+
+#### Çıktı
+
+```
+Yeni haber yayınlandı: Bugün hava çok güzel!
+Ahmet için yeni haber: Bugün hava çok güzel!
+Mehmet için yeni haber: Bugün hava çok güzel!
+Ayşe için yeni haber: Bugün hava çok güzel!
+
+Yeni haber yayınlandı: Yeni bir film vizyona girdi!
+Ahmet için yeni haber: Yeni bir film vizyona girdi!
+Ayşe için yeni haber: Yeni bir film vizyona girdi!
+```
