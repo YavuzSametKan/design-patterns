@@ -2130,3 +2130,136 @@ Güncel Metin: Merhaba Dünya!
 Güncel Metin: Bu bir test mesajıdır.
 Geri alındı. Güncel Metin: Merhaba Dünya!
 ```
+
+## Mediator
+
+### Amaç?
+
+Mediator (Arabulucu) tasarım deseni, birbirleriyle iletişim halinde olan nesneler arasındaki doğrudan bağlantıyı ortadan kaldırarak, bu iletişimi merkezi bir nesne (mediator) üzerinden yönetmeyi sağlar. Bu desen, nesneler arasındaki bağımlılığı azaltır ve sistemin daha esnek ve bakımı kolay hale gelmesini sağlar.
+
+### Ne Zaman Kullanılır?
+
+**Senaryo:** Bir hava trafik kontrol sistemi düşünün. Bu sistemde birden fazla uçak (aircraft) ve bir hava trafik kontrol kulesi (air traffic control tower) bulunur. Uçaklar birbirleriyle doğrudan iletişim kurmak yerine, tüm iletişimi kontrol kulesi üzerinden gerçekleştirir.
+
+Örneğin:
+- Uçakların İniş İzni İstemesi: Bir uçak, iniş izni için kontrol kulesine istek gönderir.
+- Kontrol Kulesinin Yönlendirmesi: Kontrol kulesi, uçaklar arasında çakışma olmaması için gerekli yönlendirmeleri yapar.
+- Uçakların Durum Bilgisi: Uçaklar, konum ve hız bilgilerini kontrol kulesine bildirir.
+
+Mediator Design Pattern, bu tür senaryolarda kullanılır. Uçaklar birbirleriyle doğrudan iletişim kurmaz, tüm iletişim kontrol kulesi üzerinden gerçekleşir. Bu sayede sistem daha düzenli ve yönetilebilir hale gelir.
+
+#### Mediator Arayüzü
+
+```java
+// Mediator (Arabulucu) Arayüzü
+interface AirTrafficControl {
+    void registerAircraft(Aircraft aircraft);  // Uçağı kaydet
+    void sendMessage(Aircraft sender, String message);  // Mesaj gönder
+}
+```
+
+#### ConcreteMediator (Somut Arabulucu)
+
+```java
+// Somut Arabulucu: Hava Trafik Kontrol Kulesi
+class ControlTower implements AirTrafficControl {
+    private List<Aircraft> aircrafts = new ArrayList<>();
+
+    @Override
+    public void registerAircraft(Aircraft aircraft) {
+        aircrafts.add(aircraft);  // Uçağı kaydet
+    }
+
+    @Override
+    public void sendMessage(Aircraft sender, String message) {
+        for (Aircraft aircraft : aircrafts) {
+            // Mesajı gönderen uçağa gönderme
+            if (aircraft != sender) {
+                aircraft.receive(message);  // Mesajı diğer uçaklara ilet
+            }
+        }
+    }
+}
+```
+
+#### Colleague (İş Arkadaşı)
+
+```java
+// Colleague (İş Arkadaşı) Arayüzü
+abstract class Aircraft {
+    protected AirTrafficControl mediator;  // Arabulucu
+    protected String name;
+
+    public Aircraft(AirTrafficControl mediator, String name) {
+        this.mediator = mediator;
+        this.name = name;
+    }
+
+    public abstract void send(String message);  // Mesaj gönder
+    public abstract void receive(String message);  // Mesaj al
+}
+```
+
+#### ConcreteColleague (Somut İş Arkadaşı)
+
+```java
+// Somut İş Arkadaşı: Uçak
+class CommercialAircraft extends Aircraft {
+    public CommercialAircraft(AirTrafficControl mediator, String name) {
+        super(mediator, name);
+    }
+
+    @Override
+    public void send(String message) {
+        System.out.println(name + " gönderiyor: " + message);
+        mediator.sendMessage(this, message);  // Mesajı arabulucu üzerinden gönder
+    }
+
+    @Override
+    public void receive(String message) {
+        System.out.println(name + " aldı: " + message);
+    }
+}
+```
+
+#### Client (İstemci)
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        // Arabulucu oluştur (Kontrol Kulesi)
+        AirTrafficControl controlTower = new ControlTower();
+
+        // Uçaklar oluştur
+        Aircraft aircraft1 = new CommercialAircraft(controlTower, "Uçak 1");
+        Aircraft aircraft2 = new CommercialAircraft(controlTower, "Uçak 2");
+        Aircraft aircraft3 = new CommercialAircraft(controlTower, "Uçak 3");
+
+        // Uçakları kontrol kulesine kaydet
+        controlTower.registerAircraft(aircraft1);
+        controlTower.registerAircraft(aircraft2);
+        controlTower.registerAircraft(aircraft3);
+
+        // Uçaklar arasında mesajlaşma
+        aircraft1.send("İniş izni istiyorum.");
+        aircraft2.send("Pistte bir sorun var mı?");
+        aircraft3.send("Pist temiz, iniş yapabilirsiniz.");
+    }
+}
+```
+
+#### Çıktı
+
+```
+Uçak 1 gönderiyor: İniş izni istiyorum.
+Uçak 2 aldı: İniş izni istiyorum.
+Uçak 3 aldı: İniş izni istiyorum.
+
+Uçak 2 gönderiyor: Pistte bir sorun var mı?
+Uçak 1 aldı: Pistte bir sorun var mı?
+Uçak 3 aldı: Pistte bir sorun var mı?
+
+Uçak 3 gönderiyor: Pist temiz, iniş yapabilirsiniz.
+Uçak 1 aldı: Pist temiz, iniş yapabilirsiniz.
+Uçak 2 aldı: Pist temiz, iniş yapabilirsiniz.
+```
