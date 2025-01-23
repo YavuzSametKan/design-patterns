@@ -1510,3 +1510,142 @@ public class Main {
 Kredi kartıyla 250.0 TL ödendi.
 PayPal ile 150.0 TL ödendi.
 ```
+
+## Command
+
+### Amaç?
+
+Command (Komut) tasarım deseni, bir isteği veya işlemi bir nesne olarak encapsulate (kapsülleme) ederek, bu isteği parametreleştirmeyi, sıraya almayı, geri almayı (undo) veya loglamayı kolaylaştırmayı amaçlar. Bu desen, istekleri gönderen nesneler ile istekleri işleyen nesneler arasındaki bağımlılığı azaltır ve esnek bir yapı sunar.
+
+### Ne Zaman Kullanılır?
+
+- Bir işlemi veya isteği nesne olarak temsil etmek istediğinizde.
+- İşlemleri sıraya almak, geri almak (undo) veya tekrar etmek (redo) istediğinizde.
+- İstekleri gönderen nesneler ile işlemleri gerçekleştiren nesneler arasında gevşek bir bağlantı (loose coupling) sağlamak istediğinizde.
+- İşlemleri loglamak veya işlem geçmişini tutmak istediğinizde.
+
+**Senaryo:** Bir akıllı ev sisteminiz olduğunu düşünün. Bu sistemde, uzaktan kumanda ile birden fazla cihazı (lamba, televizyon, klima, ses sistemi vb.) kontrol edebiliyorsunuz. Ayrıca, yanlışlıkla bir cihazı açtığınızda veya kapattığınızda bu işlemi geri alabilmeniz gerekiyor (undo özelliği). İşte bu gibi durumlarda Command Design Pattern kullanılır.
+
+#### Command Arayüzü
+
+```java
+interface Command {
+    void execute();
+    void undo();
+}
+```
+
+#### ConcreteCommand (Somut Komut)
+
+```java
+// Lambayı açma komutu
+class LightOnCommand implements Command {
+    private Light light;  // Receiver (Alıcı)
+
+    public LightOnCommand(Light light) {
+        this.light = light;
+    }
+
+    @Override
+    public void execute() {
+        light.on();  // Lambayı aç
+    }
+
+    @Override
+    public void undo() {
+        light.off();  // Lambayı kapat (geri alma)
+    }
+}
+
+// Lambayı kapatma komutu
+class LightOffCommand implements Command {
+    private Light light;  // Receiver (Alıcı)
+
+    public LightOffCommand(Light light) {
+        this.light = light;
+    }
+
+    @Override
+    public void execute() {
+        light.off();  // Lambayı kapat
+    }
+
+    @Override
+    public void undo() {
+        light.on();  // Lambayı aç (geri alma)
+    }
+}
+```
+
+#### Receiver (Alıcı)
+
+```java
+// Receiver (Alıcı): Lamba sınıfı
+class Light {
+    public void on() {
+        System.out.println("Lamba açıldı.");
+    }
+
+    public void off() {
+        System.out.println("Lamba kapatıldı.");
+    }
+}
+```
+
+#### Invoker (Çağıran)
+
+```java
+// Invoker (Çağıran): Uzaktan kumanda
+class RemoteControl {
+    private Command command;
+
+    public void setCommand(Command command) {
+        this.command = command;
+    }
+
+    public void pressButton() {
+        command.execute();  // Komutu çalıştır
+    }
+
+    public void pressUndo() {
+        command.undo();  // Komutu geri al
+    }
+}
+```
+
+#### Client (İstemci)
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        // Alıcı (Receiver) oluştur
+        Light light = new Light();
+
+        // Komutlar oluştur
+        Command lightOn = new LightOnCommand(light);
+        Command lightOff = new LightOffCommand(light);
+
+        // Invoker (Çağıran) oluştur
+        RemoteControl remote = new RemoteControl();
+
+        // Lambayı aç
+        remote.setCommand(lightOn);
+        remote.pressButton();  // Çıktı: "Lamba açıldı."
+
+        // Lambayı kapat
+        remote.setCommand(lightOff);
+        remote.pressButton();  // Çıktı: "Lamba kapatıldı."
+
+        // Geri al (undo)
+        remote.pressUndo();  // Çıktı: "Lamba açıldı."
+    }
+}
+```
+
+#### Çıktı
+
+```
+Lamba açıldı.
+Lamba kapatıldı.
+Lamba açıldı.
+```
