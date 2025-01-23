@@ -1649,3 +1649,116 @@ Lamba açıldı.
 Lamba kapatıldı.
 Lamba açıldı.
 ```
+
+## Iterator
+
+### Amaç?
+
+Iterator (Yineleyici) tasarım deseni, bir koleksiyonun (örneğin, liste, dizi, ağaç) elemanlarına sırayla erişmek için kullanılır. Bu desen, koleksiyonun iç yapısını gizler ve elemanlara erişim için standart bir yöntem sunar. Böylece, koleksiyonun nasıl uygulandığından bağımsız olarak elemanlara erişebilirsiniz.
+
+### Ne Zaman Kullanılır?
+
+**Senaryo:** Bir müzik çalma listesi (playlist) uygulaması düşünün. Bu listede birden fazla şarkı bulunuyor ve bu şarkıları sırayla çalmak, önceki şarkıya geri dönmek veya rastgele bir şarkıya atlamak istiyorsunuz. Iterator Design Pattern, bu tür senaryolarda kullanılır.
+
+Örneğin:
+- Sırayla Şarkı Çalma: Playlist'teki şarkıları birer birer çalmak istiyorsunuz.
+- Rastgele Şarkıya Atlama: Playlist'teki herhangi bir şarkıya atlamak istiyorsunuz.
+- Şarkıları Geriye Doğru Çalma: Playlist'teki şarkıları tersten çalmak istiyorsunuz.
+
+Iterator Pattern, bu işlemleri koleksiyonun iç yapısını değiştirmeden gerçekleştirmenizi sağlar. Örneğin, playlist bir dizi, bağlı liste veya başka bir veri yapısı olabilir, ancak Iterator sayesinde bu farkı hissetmezsiniz.
+
+#### Iterator Arayüzü
+
+```java
+// Iterator Arayüzü
+interface Iterator<T> {
+    boolean hasNext();  // Sonraki eleman var mı?
+    T next();           // Sonraki elemanı döndür
+}
+```
+
+#### ConcreteIterator (Somut Iterator)
+
+```java
+// Somut Iterator: Playlist'teki şarkıları sırayla dolaşır
+class PlaylistIterator implements Iterator<String> {
+    private String[] songs;
+    private int position = 0;
+
+    public PlaylistIterator(String[] songs) {
+        this.songs = songs;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return position < songs.length;
+    }
+
+    @Override
+    public String next() {
+        if (this.hasNext()) {
+            return songs[position++];
+        }
+        return null;
+    }
+}
+```
+
+#### Aggregate (Koleksiyon)
+
+```java
+// Aggregate (Koleksiyon) Arayüzü
+interface Playlist {
+    Iterator<String> createIterator();  // Iterator oluştur
+}
+```
+
+#### ConcreteAggregate (Somut Koleksiyon)
+
+```java
+// Somut Koleksiyon: Playlist
+class MusicPlaylist implements Playlist {
+    private String[] songs;
+
+    public MusicPlaylist(String[] songs) {
+        this.songs = songs;
+    }
+
+    @Override
+    public Iterator<String> createIterator() {
+        return new PlaylistIterator(songs);  // Iterator oluştur
+    }
+}
+```
+
+#### Client (İstemci)
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        // Playlist oluştur
+        String[] songs = {"Şarkı 1", "Şarkı 2", "Şarkı 3", "Şarkı 4"};
+        Playlist playlist = new MusicPlaylist(songs);
+
+        // Iterator oluştur
+        Iterator<String> iterator = playlist.createIterator();
+
+        // Şarkıları sırayla çal
+        System.out.println("Playlist'teki şarkılar:");
+        while (iterator.hasNext()) {
+            String song = iterator.next();
+            System.out.println("Çalınıyor: " + song);
+        }
+    }
+}
+```
+
+#### Çıktı
+
+```
+Playlist'teki şarkılar:
+Çalınıyor: Şarkı 1
+Çalınıyor: Şarkı 2
+Çalınıyor: Şarkı 3
+Çalınıyor: Şarkı 4
+```
